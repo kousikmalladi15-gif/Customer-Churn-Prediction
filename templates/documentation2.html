@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Analyzer | Documentation</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variable Theme mirroring predict.html */
+        :root {
+            --bg-color: #f5f3ff;         /* soft lilac-tinted white */
+            --card-bg: #ffffff;          /* Pure white for form containers */
+            --text-main: #1e1b4b;        /* Deep indigo - highly readable */
+            --text-muted: #6b7280;       /* Slate/gray 500 */
+            --border-color: #ddd6fe;     /* Soft lavender border */
+            --primary-accent: #7c3aed;   /* Royal Amethyst violet */
+            --primary-hover: #6d28d9;    /* Darker violet */
+            --font-family: 'Inter', sans-serif;
+            --card-shadow: 0 15px 40px rgba(124, 58, 237, 0.05);
+            --card-border-radius: 28px;
+            --inner-border-radius: 18px;
+            --gradient-start: #4f46e5;   /* Indigo 600 */
+            --gradient-end: #7c3aed;     /* Amethyst violet 600 */
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        /* Dark Mode variables */
+        [data-theme="dark"] {
+            --bg-color: #0b0a19;         /* deep space-violet background */
+            --card-bg: #161427;          /* deep violet-gray card container background */
+            --text-main: #f5f3ff;        /* crisp white/violet text */
+            --text-muted: #94a3b8;       /* soft slate-gray for muted text */
+            --border-color: #2c2848;     /* dark violet-gray border */
+            --primary-accent: #a78bfa;   /* light violet */
+            --primary-hover: #c4b5fd;    /* bright violet */
+            --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            --gradient-start: #1e1b4b;   /* dark indigo gradient start */
+            --gradient-end: #4c1d95;     /* dark violet gradient end */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(to bottom right, var(--bg-color), var(--bg-color));
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+            position: relative;
+        }
+
+        /* Dark Mode Switch Button */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px solid var(--border-color);
+            color: var(--primary-accent);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--primary-accent);
+            color: #ffffff;
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(124, 58, 237, 0.08);
+            color: var(--primary-accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 22px;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 18px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-section p {
+            max-width: 850px;
+            margin: auto;
+            color: var(--text-muted);
+            line-height: 1.9;
+            font-size: 1.05rem;
+        }
+
+        /* MAIN GRID */
+        .documentation-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* GENERAL CARD */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            border-radius: var(--card-border-radius);
+            padding: 34px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* LARGE CARD */
+        .large-card {
+            min-height: 100%;
+        }
+
+        /* STICKY COLUMN */
+        .sticky-column {
+            position: sticky;
+            top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* SMALL CARD */
+        .small-card {
+            padding: 28px;
+            transition: transform 0.25s ease, background-color 0.3s, border-color 0.3s;
+        }
+
+        .small-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* CARD TITLE */
+        .card-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* PARAGRAPH */
+        .card p {
+            color: var(--text-muted);
+            line-height: 1.9;
+            font-size: 0.97rem;
+            margin-bottom: 18px;
+        }
+
+        /* FEATURE LIST */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .feature-item {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--inner-border-radius);
+            padding: 18px 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .feature-item strong {
+            display: block;
+            color: var(--text-main);
+            margin-bottom: 7px;
+            font-size: 0.96rem;
+        }
+
+        .feature-item span {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), var(--bg-color));
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 24px;
+            margin-top: 28px;
+        }
+
+        .highlight-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            color: var(--text-main);
+            opacity: 0.95;
+        }
+
+        /* PIPELINE SECTION */
+        .pipeline-card {
+            margin-top: 32px;
+        }
+
+        .pipeline {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--inner-border-radius);
+            padding: 18px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .step-number {
+            min-width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(to right, var(--primary-accent), var(--primary-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .step-content strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .step-content span {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        /* DISCLAIMER */
+        .disclaimer {
+            margin-top: 35px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #d97706;
+            padding: 22px;
+            border-radius: 22px;
+            line-height: 1.8;
+            font-size: 0.93rem;
+        }
+
+        /* BUTTONS */
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 42px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 16px 30px;
+            border-radius: 16px;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            min-width: 220px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-accent), var(--primary-hover));
+            color: white;
+            box-shadow: 0 12px 25px rgba(124, 58, 237, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 30px rgba(124, 58, 237, 0.24);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: var(--bg-color);
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 45px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .documentation-grid {
+                grid-template-columns: 1fr;
+            }
+            .sticky-column {
+                position: static;
+            }
+            .hero-section h1 {
+                font-size: 2.3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 26px;
+            }
+            .btn {
+                width: 100%;
+            }
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" type="button">
+            <i class="fa-solid fa-moon"></i> <span id="themeToggleText">Dark Mode</span>
+        </button>
+
+        <!-- HERO -->
+        <div class="hero-section">
+            <div class="hero-badge">
+                Model Documentation & Architecture
+            </div>
+            <h1>
+                Understanding the Prediction Pipeline
+            </h1>
+            <p>
+                This documentation explains the machine learning architecture, preprocessing pipeline, optimization strategy, and the reasoning behind simplifying telecom features for both predictive performance and end-user usability.
+            </p>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="documentation-grid">
+            
+            <!-- LEFT SIDE -->
+            <div class="card large-card">
+                <div class="card-title">
+                    <i class="fa-solid fa-brain"></i> Why XGBoost Classifier?
+                </div>
+                <p>
+                    The prediction system uses the <strong>XGBoost (Extreme Gradient Boosting) Classifier</strong> because the target task involves predicting a binary customer state (Churn vs. No Churn) using a combination of numerical billing patterns (charges, tenure) and categorical features (contract type, payment method).
+                </p>
+                <p>
+                    XGBoost was selected because it represents the state-of-the-art in gradient boosted decision trees for structured tabular datasets, providing high training efficiency, built-in regularization, and superior classification capabilities.
+                </p>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <strong>Regularized Gradient Boosting</strong>
+                        <span>
+                            XGBoost incorporates L1 (Lasso) and L2 (Ridge) regularization constraints to control tree complexity and prevent overfitting during split evaluations.
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <strong>Imbalance Mitigation</strong>
+                        <span>
+                            Configures dynamic target weighting via the `scale_pos_weight` hyperparameter, which balances training weights based on the positive-to-negative sample ratio to handle class skewness.
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <strong>Non-linear Separation</strong>
+                        <span>
+                            Enables decision split thresholds that naturally map complex, non-linear interactions between service tenures, product counts, and monthly rates.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="highlight-title">Why Not Linear / Basic Classifiers?</div>
+                    <p>
+                        Traditional linear models assume independent, linear interactions. Customer churn data containing high multi-collinearity and multi-service usage thresholds (where churn peaks at low tenure and moderate charges) is better modeled by decision-tree systems. XGBoost significantly outperformed traditional baseline classifiers during cross-validation.
+                    </p>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="sticky-column">
+                
+                <!-- ONE-HOT ENCODING -->
+                <div class="card small-card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-cubes"></i> One-Hot Encoding
+                    </div>
+                    <p>
+                        One-Hot Encoding (OHE) was utilized to transform raw categorical columns (such as Contract, PaperlessBilling, and PaymentMethod) into numeric formats.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <strong>Dummy Variable Trap Avoidance</strong>
+                            <span>
+                                Configures `drop='first'` to drop the baseline column for each category, preventing collinearity issues in parameter calculations.
+                            </span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Algorithmic Compatibility</strong>
+                            <span>
+                                Ensures raw strings are converted into mathematical array formats required by gradient boosted tree algorithms.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRID SEARCH -->
+                <div class="card small-card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> GridSearchCV
+                    </div>
+                    <p>
+                        GridSearchCV was deployed to run exhaustive hyperparameter tuning over cross-validation folds, identifying optimal parameters for tree depth, estimators, and learning rates.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <strong>Exhaustive Optimization</strong>
+                            <span>
+                                Evaluates every parameter configuration across a defined parameter grid to prevent manual tuning bias.
+                            </span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Maximized ROC AUC</strong>
+                            <span>
+                                Optimizes model evaluation based on the Area Under the ROC Curve, balancing true positive and false positive rates.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FEATURE ENGINEERING -->
+        <div class="card pipeline-card">
+            <div class="card-title">
+                <i class="fa-solid fa-code-fork"></i> Simplifying Features for the Model and the End User
+            </div>
+            <p>
+                One important design decision in this project was preprocessing the raw customer usage and service variables into structured, derived feature groups to improve learning quality and simplify client-side entry.
+            </p>
+            <p>
+                Tabular telecom data often contains detailed, correlated medical and account records. Direct usage of raw data fields can increase dimensionality, cause noise, and complicate user interaction.
+            </p>
+
+            <div class="pipeline">
+                <div class="pipeline-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Service Add-On Mapping</strong>
+                        <span>
+                            Individual premium add-ons (such as OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, and StreamingMovies) are mapped to numeric indicators (-1 for No, 0 for No Internet, and 1 for Yes) to construct consistent ordinal inputs.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Automatic Billing Consolidation</strong>
+                        <span>
+                            Aggregates specific payment channels containing "(automatic)" to compile a single, binary `is_automatic` feature, capturing customer financial convenience.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Standardization & Scaling</strong>
+                        <span>
+                            Applies `StandardScaler` to `MonthlyCharges` and `TotalCharges` dynamically on the server using training population stats to prevent scale bias from dominating prediction thresholds.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Ecosystem Integration Metrics</strong>
+                        <span>
+                            Derives `Product_Count` and flags `Is_High_Risk_Integration` (1 to 3 products) and `Is_Fully_Integrated` (5 or 6 products) variables to model the protective effect of customer service bundling on user loyalty.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <div class="highlight-title">Design Philosophy</div>
+                <p>
+                    The objective was not only maximizing model accuracy and ROC AUC scores, but also creating a customer-centric analytics system that remains understandable, structured, and highly interactive for real-world business decisions.
+                </p>
+            </div>
+        </div>
+
+        <!-- DISCLAIMER -->
+        <div class="disclaimer">
+            <strong>Analytical Disclaimer:</strong>
+            This platform is intended for analytical, educational, and demonstration purposes only. Predictions generated by the system should be interpreted as probability weights and not direct statements of customer action.
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="btn-group">
+            <a href="{{ url_for('predict_model') }}" class="btn btn-primary">
+                <i class="fa-solid fa-gauge-high"></i> &nbsp; Open Prediction Tool
+            </a>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-house"></i> &nbsp; Return to Home
+            </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Customer Churn Predictor • XGBoost Classifier • One-Hot Encoding • GridSearchCV • Feature Engineering
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark!
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        });
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const btnText = document.getElementById('themeToggleText');
+            const btnIcon = document.querySelector('.theme-toggle-btn i');
+            if (theme === 'dark') {
+                btnText.textContent = 'Light Mode';
+                btnIcon.className = 'fa-solid fa-sun';
+            } else {
+                btnText.textContent = 'Dark Mode';
+                btnIcon.className = 'fa-solid fa-moon';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Analyzer | Home</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variable Theme mirroring predict.html */
+        :root {
+            --bg-color: #f8fafc;         /* Slate 50 - Light, clean background */
+            --card-bg: #ffffff;          /* Pure white for form containers */
+            --text-main: #0f172a;        /* Slate 900 - Deep, readable text */
+            --text-muted: #64748b;       /* Slate 500 - For labels and placeholders */
+            --border-color: #cbd5e1;     /* Slate 300 - Subtle input borders */
+            --primary-accent: #2563eb;   /* Blue 600 - Focus state & primary buttons */
+            --primary-hover: #1d4ed8;    /* Blue 700 */
+            --font-family: 'Inter', sans-serif;
+            --card-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
+            --card-border-radius: 32px;
+            --inner-border-radius: 18px;
+            --gradient-start: #1e3a8a;
+            --gradient-end: #3b82f6;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        /* Dark Mode variables */
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --primary-accent: #3b82f6;
+            --primary-hover: #60a5fa;
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            --gradient-start: #0f172a;
+            --gradient-end: #1e3a8a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, var(--bg-color), var(--bg-color));
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .hero-container {
+            width: 100%;
+            max-width: 1050px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            border-radius: var(--card-border-radius);
+            padding: 60px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Dark Mode Switch Button */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid var(--border-color);
+            color: var(--primary-accent);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--primary-accent);
+            color: #ffffff;
+        }
+
+        /* HERO Section */
+        .hero-top {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary-accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            line-height: 1.1;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-description {
+            max-width: 760px;
+            margin: auto;
+            color: var(--text-muted);
+            line-height: 1.9;
+            font-size: 1.05rem;
+        }
+
+        /* GRID */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 0.97rem;
+        }
+
+        /* FEATURE LIST */
+        .feature-list {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-item {
+            background: var(--bg-color);
+            border-radius: 16px;
+            padding: 16px 18px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .feature-item strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .feature-item span {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        /* HIGHLIGHT */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), var(--bg-color));
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 28px;
+            margin-top: 24px;
+        }
+
+        .highlight-title {
+            color: var(--primary-accent);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box p {
+            color: var(--text-main);
+            line-height: 1.8;
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        /* METRICS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .metric-card {
+            background: var(--bg-color);
+            border-radius: var(--inner-border-radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .metric-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-accent);
+            margin-bottom: 6px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* DISCLAIMER */
+        .disclaimer {
+            margin-top: 28px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #d97706;
+            padding: 18px 20px;
+            border-radius: var(--inner-border-radius);
+            line-height: 1.8;
+            font-size: 0.92rem;
+        }
+
+        /* BUTTONS */
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 42px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 16px 30px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.97rem;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 230px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-accent), var(--primary-hover));
+            color: white;
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 30px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: var(--bg-color);
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 45px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ANIMATION */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.3rem;
+            }
+            .hero-container {
+                padding: 35px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn {
+                width: 100%;
+            }
+            .hero-container {
+                padding: 28px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-container">
+        
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" type="button">
+            <i class="fa-solid fa-moon"></i> <span id="themeToggleText">Dark Mode</span>
+        </button>
+
+        <!-- HERO -->
+        <div class="hero-top">
+            <div class="hero-badge">
+                AI-Driven Telecom Intelligence Platform
+            </div>
+            <h1>
+                Customer Churn Predictor
+            </h1>
+            <p class="hero-description">
+                Advanced machine learning system designed to estimate customer churn risk patterns using customer metadata, active service subscriptions, contract types, and billing history.
+            </p>
+        </div>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+            
+            <!-- LEFT CARD -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-chart-line"></i> Platform Overview
+                </div>
+                <p>
+                    This platform was developed to analyze customer profiles and identify patterns associated with churn behavior. The prediction pipeline combines statistical learning, feature preprocessing, and subscription activity indicators to estimate customer churn probability.
+                </p>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <strong>XGBoost Classifier</strong>
+                        <span>
+                            Gradient boosted decision trees optimized for high classification performance, class imbalance, and stable prediction behavior.
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <strong>GridSearchCV Optimization</strong>
+                        <span>
+                            Exhaustive hyperparameter tuning performed to maximize model ROC AUC score and ensure robust generalization across demographic segments.
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <strong>Telecom Feature Engineering</strong>
+                        <span>
+                            One-hot categorical encodings, standardized numerical billing features, product usage counts, and integration risk levels built into the pipeline.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="highlight-title">Optimization Overview</div>
+                    <p>
+                        This version utilizes <strong>XGBoost</strong> to achieve high classification power on structured customer data. Hyperparameters (learning rate, max depth, estimators) were tuned using <strong>GridSearchCV</strong> to maximize predictive reliability and precision-recall trade-offs.
+                    </p>
+                </div>
+            </div>
+
+            <!-- RIGHT CARD -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-gears"></i> System Capabilities
+                </div>
+                <p>
+                    The model evaluates customer profiles using a combination of customer tenure, service subscriptions, charges, payment history, and contract parameters.
+                </p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card" style="grid-row: span 2; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="metric-number" style="font-size: 1.45rem; line-height: 1.35; margin-bottom: 8px;">82% Overall Accuracy<br>&amp; 75% Churn Recall</div>
+                        <div class="metric-label">
+                            Optimized XGBoost model performance showcasing overall accuracy and recall for churn detection
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-number">XGB</div>
+                        <div class="metric-label">
+                            Extreme Gradient Boosting used for predictions
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-number">ML</div>
+                        <div class="metric-label">
+                            Machine learning pipeline with preprocessing integration
+                        </div>
+                    </div>
+                </div>
+
+                <div class="disclaimer">
+                    <strong>Analytical Disclaimer:</strong>
+                    This platform is intended for analytical and research demonstration purposes. Predictions generated by the system should be used in combination with qualitative customer insights and business policy.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="btn-group">
+            <a href="{{ url_for('predict_model') }}" class="btn btn-primary">
+                <i class="fa-solid fa-gauge-high"></i> &nbsp; Launch Prediction Tool
+            </a>
+            <a href="{{ url_for('documentation') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-book"></i> &nbsp; View Model Documentation
+            </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Customer Churn Predictor • Powered by XGBoost Classifier, Feature Engineering, and GridSearchCV
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark!
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        });
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const btnText = document.getElementById('themeToggleText');
+            const btnIcon = document.querySelector('.theme-toggle-btn i');
+            if (theme === 'dark') {
+                btnText.textContent = 'Light Mode';
+                btnIcon.className = 'fa-solid fa-sun';
+            } else {
+                btnText.textContent = 'Dark Mode';
+                btnIcon.className = 'fa-solid fa-moon';
+            }
+        }
+    </script>
+</body>
+</html>

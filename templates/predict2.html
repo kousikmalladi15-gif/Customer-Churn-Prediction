@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Churn Prediction Portal</title>
+  <meta name="description" content="Predict customer churn probability using advanced machine learning models based on telecom profile characteristics.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons for premium look -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* Styling variables and custom design tokens */
+    :root {
+      --bg-color: #f5f3ff;         /* soft lilac-tinted white */
+      --card-bg: #ffffff;          /* Pure white for form containers */
+      --text-main: #1e1b4b;        /* Deep indigo - highly readable */
+      --text-muted: #6b7280;       /* Slate/gray 500 */
+      --border-color: #ddd6fe;     /* Soft lavender border */
+      --primary-accent: #7c3aed;   /* Royal Amethyst violet */
+      --primary-hover: #6d28d9;    /* Darker violet */
+      --font-family: 'Inter', sans-serif;
+      --card-shadow: 0 10px 30px rgba(124, 58, 237, 0.05);
+      --card-border-radius: 12px;
+      
+      /* Auxiliary colors for status and categories */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gradient-start: #4f46e5;   /* Indigo 600 */
+      --gradient-end: #7c3aed;     /* Amethyst violet 600 */
+    }
+
+    /* Dark Mode variables */
+    [data-theme="dark"] {
+      --bg-color: #0b0a19;         /* deep space-violet background */
+      --card-bg: #161427;          /* deep violet-gray card container background */
+      --text-main: #f5f3ff;        /* crisp white/violet text */
+      --text-muted: #94a3b8;       /* soft slate-gray for muted text */
+      --border-color: #2c2848;     /* dark violet-gray border */
+      --primary-accent: #a78bfa;   /* light violet */
+      --primary-hover: #c4b5fd;    /* bright violet */
+      --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      --gradient-start: #1e1b4b;   /* dark indigo gradient start */
+      --gradient-end: #4c1d95;     /* dark violet gradient end */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s, color 0.3s;
+      line-height: 1.5;
+    }
+
+    /* Header styling with smooth gradient */
+    header {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      color: #ffffff;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      font-size: 1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .theme-toggle-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Main layout container */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Prediction Result Banner if present */
+    .result-card {
+      background-color: var(--card-bg);
+      border-radius: var(--card-border-radius);
+      box-shadow: var(--card-shadow);
+      border-left: 6px solid var(--primary-accent);
+      padding: 1.5rem;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      animation: slideDown 0.4s ease-out;
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .result-card.churn-high {
+      border-left-color: var(--danger);
+    }
+
+    .result-card.churn-low {
+      border-left-color: var(--success);
+    }
+
+    .result-icon {
+      font-size: 2.5rem;
+    }
+
+    .churn-high .result-icon { color: var(--danger); }
+    .churn-low .result-icon { color: var(--success); }
+
+    .result-info h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-info p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .result-score {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .result-score .percentage {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .result-score .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Grid Layout for Form Card and Controls */
+    .form-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Card Panels representing form sections */
+    .section-card {
+      background-color: var(--card-bg);
+      border-radius: var(--card-border-radius);
+      box-shadow: var(--card-shadow);
+      padding: 2rem;
+      border: 1px solid var(--border-color);
+      transition: background-color 0.3s, border-color 0.3s, transform 0.2s;
+    }
+
+    .section-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 0.75rem;
+      color: var(--primary-accent);
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Form Fields Styling */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: -0.25rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      font-family: var(--font-family);
+      color: var(--text-main);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+      outline: none;
+    }
+
+    /* Form action buttons */
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .form-actions .nav-group,
+    .form-actions .action-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-family);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-color);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-accent);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-warning {
+      background-color: var(--warning);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-warning:hover {
+      background-color: #d97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: auto;
+      background-color: var(--card-bg);
+      transition: background-color 0.3s, border-top 0.3s;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+      header h1 {
+        font-size: 1.75rem;
+      }
+      main {
+        padding: 1rem;
+      }
+      .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+      .form-actions .nav-group,
+      .form-actions .action-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" type="button">
+      <i class="fa-solid fa-moon"></i> <span id="themeToggleText">Dark Mode</span>
+    </button>
+    <div class="header-content">
+      <h1><i class="fa-solid fa-chart-line"></i> Customer Churn Analyzer</h1>
+      <p>Configure a customer profile below to estimate the likelihood of churn using our optimized XGBoost prediction engine.</p>
+    </div>
+  </header>
+
+  <main>
+    <form id="churnForm">
+      <div class="form-layout">
+
+        <!-- Section 1: Customer Profile -->
+        <section class="section-card">
+          <h2 class="section-title"><i class="fa-solid fa-user-tie"></i> Customer Profile & Demographics</h2>
+          <div class="grid-container">
+            
+            <div class="form-group">
+              <label for="gender"><i class="fa-solid fa-venus-mars"></i> Gender</label>
+              <select name="gender" id="gender" required>
+                <option value="0">Female</option>
+                <option value="1">Male</option>
+              </select>
+              <span class="field-desc">Binary representation (Female=0, Male=1)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="SeniorCitizen"><i class="fa-solid fa-person-cane"></i> Senior Citizen</label>
+              <select name="SeniorCitizen" id="SeniorCitizen" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+              <span class="field-desc">Is the customer 65 years or older?</span>
+            </div>
+
+            <div class="form-group">
+              <label for="Partner"><i class="fa-solid fa-ring"></i> Partner Status</label>
+              <select name="Partner" id="Partner" required>
+                <option value="No">No Partner</option>
+                <option value="Yes">Has Partner</option>
+              </select>
+              <span class="field-desc">Primary demographic status flag</span>
+            </div>
+
+            <div class="form-group">
+              <label for="Dependents"><i class="fa-solid fa-children"></i> Dependents Status</label>
+              <select name="Dependents" id="Dependents" required>
+                <option value="No">No Dependents</option>
+                <option value="Yes">Has Dependents</option>
+              </select>
+              <span class="field-desc">Dependent children or relatives</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Section 2: Core Phone & Internet Services -->
+        <section class="section-card">
+          <h2 class="section-title"><i class="fa-solid fa-network-wired"></i> Core Telecom Services</h2>
+          <div class="grid-container">
+            
+            <div class="form-group">
+              <label for="PhoneService"><i class="fa-solid fa-phone"></i> Phone Service</label>
+              <select name="PhoneService" id="PhoneService" required>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+              <span class="field-desc">Subscribes to standard voice line</span>
+            </div>
+
+            <div class="form-group">
+              <label for="MultipleLines"><i class="fa-solid fa-phone-volume"></i> Multiple Lines</label>
+              <select name="MultipleLines" id="MultipleLines" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No phone service">No phone service</option>
+              </select>
+              <span class="field-desc">Multiple telephone numbers active</span>
+            </div>
+
+            <div class="form-group">
+              <label for="InternetService"><i class="fa-solid fa-wifi"></i> Internet Service Type</label>
+              <select name="InternetService" id="InternetService" required>
+                <option value="DSL">DSL</option>
+                <option value="Fiber optic">Fiber optic</option>
+                <option value="No">No Internet Service</option>
+              </select>
+              <span class="field-desc">Technology type</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Section 3: Premium Add-ons & Streaming -->
+        <section class="section-card">
+          <h2 class="section-title"><i class="fa-solid fa-cubes"></i> Service Add-Ons & Streaming</h2>
+          <div class="grid-container">
+            
+            <div class="form-group">
+              <label for="OnlineSecurity"><i class="fa-solid fa-shield-halved"></i> Online Security</label>
+              <select name="OnlineSecurity" id="OnlineSecurity" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Antivirus & firewall bundle</span>
+            </div>
+
+            <div class="form-group">
+              <label for="OnlineBackup"><i class="fa-solid fa-cloud-arrow-up"></i> Online Backup</label>
+              <select name="OnlineBackup" id="OnlineBackup" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Cloud backup storage</span>
+            </div>
+
+            <div class="form-group">
+              <label for="DeviceProtection"><i class="fa-solid fa-laptop-medical"></i> Device Protection</label>
+              <select name="DeviceProtection" id="DeviceProtection" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Accidental damage coverage</span>
+            </div>
+
+            <div class="form-group">
+              <label for="TechSupport"><i class="fa-solid fa-user-gear"></i> Tech Support</label>
+              <select name="TechSupport" id="TechSupport" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Priority assistance plan</span>
+            </div>
+
+            <div class="form-group">
+              <label for="StreamingTV"><i class="fa-solid fa-tv"></i> Streaming TV</label>
+              <select name="StreamingTV" id="StreamingTV" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Live TV channels package</span>
+            </div>
+
+            <div class="form-group">
+              <label for="StreamingMovies"><i class="fa-solid fa-film"></i> Streaming Movies</label>
+              <select name="StreamingMovies" id="StreamingMovies" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service">No internet service</option>
+              </select>
+              <span class="field-desc">Movie library subscription</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Section 4: Contract & Financials -->
+        <section class="section-card">
+          <h2 class="section-title"><i class="fa-solid fa-file-invoice-dollar"></i> Contract & Billing Details</h2>
+          <div class="grid-container">
+            
+            <div class="form-group">
+              <label for="Contract"><i class="fa-solid fa-file-contract"></i> Contract Type</label>
+              <select name="Contract" id="Contract" required>
+                <option value="Month-to-month">Month-to-month</option>
+                <option value="One year">One year</option>
+                <option value="Two year">Two year</option>
+              </select>
+              <span class="field-desc">Billing term structure</span>
+            </div>
+
+            <div class="form-group">
+              <label for="PaperlessBilling"><i class="fa-solid fa-envelope-open-text"></i> Paperless Billing</label>
+              <select name="PaperlessBilling" id="PaperlessBilling" required>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+              <span class="field-desc">Invoice delivery preference</span>
+            </div>
+
+            <div class="form-group">
+              <label for="PaymentMethod"><i class="fa-solid fa-credit-card"></i> Payment Method</label>
+              <select name="PaymentMethod" id="PaymentMethod" required>
+                <option value="Electronic check">Electronic check</option>
+                <option value="Mailed check">Mailed check</option>
+                <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                <option value="Credit card (automatic)">Credit card (automatic)</option>
+              </select>
+              <span class="field-desc">Billing settlement channel</span>
+            </div>
+
+            <div class="form-group">
+              <label for="tenure"><i class="fa-solid fa-hourglass-half"></i> Tenure (Months)</label>
+              <input type="number" name="tenure" id="tenure" min="0" max="72" placeholder="e.g. 12" required>
+              <span class="field-desc">Months customer has stayed (0 to 72)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="MonthlyCharges"><i class="fa-solid fa-sack-dollar"></i> Monthly Charges ($)</label>
+              <input type="number" name="MonthlyCharges" id="MonthlyCharges" min="0" max="150" step="0.01" placeholder="e.g. 64.85" required>
+              <span class="field-desc">Current monthly invoice price</span>
+            </div>
+
+            <div class="form-group">
+              <label for="TotalCharges"><i class="fa-solid fa-money-bill-wave"></i> Total Charges ($)</label>
+              <input type="number" name="TotalCharges" id="TotalCharges" min="0" max="10000" step="0.01" placeholder="e.g. 2292.15" required>
+              <span class="field-desc">Accrued bill amount across tenure</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Submit & Reset Actions -->
+        <div class="form-actions">
+          <div class="nav-group">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">
+              <i class="fa-solid fa-house"></i> Return to Home
+            </a>
+            <a href="{{ url_for('documentation') }}" class="btn btn-secondary">
+              <i class="fa-solid fa-book"></i> View Documentation
+            </a>
+          </div>
+          <div class="action-group">
+            <button type="button" class="btn btn-warning" onclick="resetForm()">
+              <i class="fa-solid fa-arrow-rotate-left"></i> Reset Fields
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-circle-play"></i> Run Prediction Model
+            </button>
+          </div>
+        </div>
+
+        <!-- Result Container located at the bottom of the page, below the buttons -->
+        <div id="resultContainer"></div>
+
+      </div>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Customer Churn Prediction Engine. All rights reserved. Powered by Flask, XGBoost & Scikit-Learn.</p>
+  </footer>
+
+  <script>
+    // Initialize Theme
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark!
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeUI(savedTheme);
+
+      // Initialize service dependencies and constraints
+      checkServiceDependencies();
+      document.getElementById('PhoneService').addEventListener('change', checkServiceDependencies);
+      document.getElementById('InternetService').addEventListener('change', checkServiceDependencies);
+
+      // Handle asynchronous native form submission
+      document.getElementById('churnForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Intercept page navigation
+
+        const phoneService = document.getElementById('PhoneService').value;
+        const internetService = document.getElementById('InternetService').value;
+
+        // Double check: if both phone and internet are 'No', block submission
+        if (phoneService === 'No' && internetService === 'No') {
+          return; // Block submission
+        }
+
+        const formData = new FormData(this);
+        
+        // Asynchronously post to prediction endpoint
+        fetch('/predict_model', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response error');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            displayPredictionResult(data.prediction, data.churn_prob);
+          } else {
+            console.error('Prediction failed: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.warn('Backend server unavailable. Executing client-side model fallback...', error);
+          
+          // Fallback mechanism if opened directly via filesystem (file:///C:/...)
+          if (window.location.protocol === 'file:') {
+            runClientSideMockPrediction();
+          }
+        });
+      });
+    });
+
+    // Theme toggle function
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeUI(newTheme);
+    }
+
+    // Update Theme Toggle Buttons
+    function updateThemeUI(theme) {
+      const btnText = document.getElementById('themeToggleText');
+      const btnIcon = document.querySelector('.theme-toggle-btn i');
+      if (theme === 'dark') {
+        btnText.textContent = 'Light Mode';
+        btnIcon.className = 'fa-solid fa-sun';
+      } else {
+        btnText.textContent = 'Dark Mode';
+        btnIcon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    // Dynamic UI constraints for phone and internet services selection
+    function checkServiceDependencies() {
+      const phoneService = document.getElementById('PhoneService').value;
+      const multipleLines = document.getElementById('MultipleLines');
+      const internetService = document.getElementById('InternetService').value;
+      const submitBtn = document.querySelector('button[type="submit"]');
+      const resultContainer = document.getElementById('resultContainer');
+
+      // 1. Phone Service -> Multiple Lines constraint
+      if (phoneService === 'No') {
+        multipleLines.value = 'No phone service';
+        multipleLines.disabled = true;
+        multipleLines.style.opacity = '0.6';
+      } else {
+        if (multipleLines.value === 'No phone service') {
+          multipleLines.value = 'No';
+        }
+        multipleLines.disabled = false;
+        multipleLines.style.opacity = '1';
+      }
+
+      // 2. Internet Service -> Add-ons constraints
+      const addons = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies'];
+      if (internetService === 'No') {
+        addons.forEach(id => {
+          const select = document.getElementById(id);
+          select.value = 'No internet service';
+          select.disabled = true;
+          select.style.opacity = '0.6';
+        });
+      } else {
+        addons.forEach(id => {
+          const select = document.getElementById(id);
+          select.disabled = false;
+          select.style.opacity = '1';
+          if (select.value === 'No internet service') {
+            select.value = 'No';
+          }
+        });
+      }
+
+      // 3. Dual service deactivation check (Phone Service = No & Internet Service = No)
+      if (phoneService === 'No' && internetService === 'No') {
+        submitBtn.disabled = true;
+        
+        // Render a warning card below buttons
+        resultContainer.innerHTML = `
+          <div class="result-card churn-high" style="border-left-color: var(--warning); margin-top: 2rem;">
+            <div class="result-icon" style="color: var(--warning);">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="result-info">
+              <h3>Inactive Profile Status</h3>
+              <p>This customer has selected no services from the telecom provider (Phone and Internet are both deactivated). Churn prediction model cannot run on an inactive subscription.</p>
+            </div>
+          </div>
+        `;
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        submitBtn.disabled = false;
+        // Clear message only if it was the subscription warning
+        if (resultContainer.innerHTML.includes('Inactive Profile Status')) {
+          resultContainer.innerHTML = '';
+        }
+      }
+    }
+
+    // Function to calculate a mock prediction if running offline / from file system
+    function runClientSideMockPrediction() {
+      const tenure = parseFloat(document.getElementById('tenure').value) || 0;
+      const monthly = parseFloat(document.getElementById('MonthlyCharges').value) || 0;
+      const contract = document.getElementById('Contract').value;
+      const security = document.getElementById('OnlineSecurity').value;
+      
+      // Basic churn risk logic matching general trends
+      let riskFactor = 0.3;
+      
+      // Monthly charges increase risk
+      riskFactor += (monthly / 150) * 0.3;
+      // Tenure reduces risk
+      riskFactor -= (tenure / 72) * 0.4;
+      // Month-to-month contracts have high risk
+      if (contract === 'Month-to-month') riskFactor += 0.25;
+      if (contract === 'Two year') riskFactor -= 0.2;
+      // Security reduces risk
+      if (security === 'Yes') riskFactor -= 0.1;
+      
+      // Clamp values between 0.02 and 0.98
+      const churnProb = Math.max(0.02, Math.min(0.98, riskFactor));
+      const prediction = churnProb > 0.5 ? 1 : 0;
+      
+      displayPredictionResult(prediction, churnProb);
+    }
+
+    // Dynamically insert and display the prediction result below the action buttons
+    function displayPredictionResult(prediction, churnProb) {
+      const container = document.getElementById('resultContainer');
+      const isHighRisk = churnProb > 0.5;
+      
+      container.innerHTML = `
+        <div class="result-card ${isHighRisk ? 'churn-high' : 'churn-low'}">
+          <div class="result-icon">
+            ${isHighRisk ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>'}
+          </div>
+          <div class="result-info">
+            <h3>${isHighRisk ? 'High Churn Risk Predicted' : 'Low Churn Risk Predicted'}</h3>
+            <p>${isHighRisk ? 'This customer is likely to terminate service. Immediate retention measures are recommended.' : 'This customer is satisfied and is likely to remain with the service.'}</p>
+          </div>
+          <div class="result-score">
+            <div class="percentage">${(churnProb * 100).toFixed(1)}%</div>
+            <div class="label">Churn Probability</div>
+          </div>
+        </div>
+      `;
+      
+      // Smooth scroll to view results natively
+      container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Reset Form to initial default state
+    function resetForm() {
+      document.getElementById('churnForm').reset();
+      
+      // Clear result container
+      const container = document.getElementById('resultContainer');
+      if (container) {
+        container.innerHTML = '';
+      }
+    }
+  </script>
+</body>
+</html>
