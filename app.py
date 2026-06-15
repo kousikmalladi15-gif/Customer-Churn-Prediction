@@ -15,6 +15,10 @@ except Exception as e:
     print(f"Error loading models or encoder: {e}")
     ohe, scaler, model, expected_features = None, None, None, []
 
+def predict_churn_by_probability(prob, threshold=0.4):
+    """Predicts binary churn class using custom probability threshold."""
+    return 1 if prob >= threshold else 0
+
 @app.route('/')
 def home():
     return render_template('home2.html')
@@ -51,7 +55,6 @@ def predict_model():
             tenure = int(request.form.get('tenure', 0))
             monthly = float(request.form.get('MonthlyCharges', 0.0))
             total = float(request.form.get('TotalCharges', 0.0))
-
 
             map_addon = lambda val: 1 if val == 'Yes' else (-1 if val == 'No' else 0)
             
@@ -124,7 +127,7 @@ def predict_model():
             df_final = df_processed[expected_features]
 
             churn_prob = float(model.predict_proba(df_final)[0][1])
-            prediction = int(model.predict(df_final)[0])
+            prediction = predict_churn_by_probability(churn_prob, threshold=0.4)
 
 
             return jsonify({
@@ -140,7 +143,7 @@ def predict_model():
                 'error': str(ex)
             }), 400
 
-    return render_template('predict2.html')
+    return render_template('predict.html')
 
 if __name__ == "__main__":
     app.run(port=7860, host='0.0.0.0')
