@@ -145,20 +145,30 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .result-card.churn-high {
-      border-left-color: var(--danger);
+    .result-card.churn-very-low {
+      border-left-color: var(--success);
     }
 
     .result-card.churn-low {
-      border-left-color: var(--success);
+      border-left-color: #0ea5e9; /* Sky blue */
+    }
+
+    .result-card.churn-high {
+      border-left-color: var(--warning);
+    }
+
+    .result-card.churn-very-high {
+      border-left-color: var(--danger);
     }
 
     .result-icon {
       font-size: 2.5rem;
     }
 
-    .churn-high .result-icon { color: var(--danger); }
-    .churn-low .result-icon { color: var(--success); }
+    .churn-very-low .result-icon { color: var(--success); }
+    .churn-low .result-icon { color: #0ea5e9; }
+    .churn-high .result-icon { color: var(--warning); }
+    .churn-very-high .result-icon { color: var(--danger); }
 
     .result-info h3 {
       font-size: 1.25rem;
@@ -617,10 +627,10 @@
         <!-- Submit & Reset Actions -->
         <div class="form-actions">
           <div class="nav-group">
-            <a href="/" class="btn btn-secondary">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">
               <i class="fa-solid fa-house"></i> Return to Home
             </a>
-            <a href="/documentation" class="btn btn-secondary">
+            <a href="{{ url_for('documentation') }}" class="btn btn-secondary">
               <i class="fa-solid fa-book"></i> View Documentation
             </a>
           </div>
@@ -709,6 +719,7 @@
       updateThemeUI(newTheme);
     }
 
+    // Update Theme Toggle Buttons
     function updateThemeUI(theme) {
       const btnText = document.getElementById('themeToggleText');
       const btnIcon = document.querySelector('.theme-toggle-btn i');
@@ -810,7 +821,7 @@
       
       // Clamp values between 0.02 and 0.98
       const churnProb = Math.max(0.02, Math.min(0.98, riskFactor));
-      const prediction = churnProb > 0.5 ? 1 : 0;
+      const prediction = churnProb >= 0.4 ? 1 : 0;
       
       displayPredictionResult(prediction, churnProb);
     }
@@ -818,20 +829,42 @@
     // Dynamically insert and display the prediction result below the action buttons
     function displayPredictionResult(prediction, churnProb) {
       const container = document.getElementById('resultContainer');
-      const isHighRisk = churnProb > 0.5;
+      
+      let cardClass = '';
+      let iconHtml = '';
+      let title = '';
+      let desc = '';
+      
+      if (churnProb < 0.2) {
+        cardClass = 'churn-very-low';
+        iconHtml = '<i class="fa-solid fa-circle-check"></i>';
+        title = 'Very Low Churn Risk';
+        desc = 'Minimal churn probability. This customer profile indicates strong loyalty indicators.';
+      } else if (churnProb < 0.4) {
+        cardClass = 'churn-low';
+        iconHtml = '<i class="fa-solid fa-circle-info"></i>';
+        title = 'Low Churn Risk';
+        desc = 'Low churn probability. The customer profile shows stable engagement patterns.';
+      } else if (churnProb < 0.6) {
+        cardClass = 'churn-high';
+        iconHtml = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        title = 'High Churn Risk';
+        desc = 'High churn probability. Active monitoring and customer success outreach are recommended.';
+      } else {
+        cardClass = 'churn-very-high';
+        iconHtml = '<i class="fa-solid fa-circle-exclamation"></i>';
+        title = 'Very High Churn Risk';
+        desc = 'Critical churn probability. Immediate proactive retention measures are highly advised.';
+      }
       
       container.innerHTML = `
-        <div class="result-card ${isHighRisk ? 'churn-high' : 'churn-low'}">
+        <div class="result-card ${cardClass}">
           <div class="result-icon">
-            ${isHighRisk ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>'}
+            ${iconHtml}
           </div>
           <div class="result-info">
-            <h3>${isHighRisk ? 'High Churn Risk Predicted' : 'Low Churn Risk Predicted'}</h3>
-            <p>${isHighRisk ? 'This customer is likely to terminate service. Immediate retention measures are recommended.' : 'This customer is satisfied and is likely to remain with the service.'}</p>
-          </div>
-          <div class="result-score">
-            <div class="percentage">${(churnProb * 100).toFixed(1)}%</div>
-            <div class="label">Churn Probability</div>
+            <h3>${title}</h3>
+            <p>${desc}</p>
           </div>
         </div>
       `;
