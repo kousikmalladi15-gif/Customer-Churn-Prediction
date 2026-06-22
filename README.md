@@ -28,7 +28,7 @@ IBM Telco Customer Churn dataset, around [PLACEHOLDER] rows and [PLACEHOLDER] fe
 | F1 score | 0.64 |
 
 
-Numbers above are on a held out test split of 30% percent. Recall was treated as more important than raw accuracy here, since missing an actual churner costs the business more than a false alarm, leading to a smaller value of precision. 
+Numbers above are on a held out test split of 25% percent. Recall was treated as more important than raw accuracy here, since missing an actual churner costs the business more than a false alarm, leading to a smaller value of precision. 
 
 ## Tech stack
 
